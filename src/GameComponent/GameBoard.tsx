@@ -16,8 +16,10 @@ const GameBoard = () => {
     isPaused,
     changeDirection,
     resetGame,
-    togglePause
-  } = useSnakeGame(BOARD_SIZE);
+    togglePause,
+    isStarted,
+    setIsStarted,
+  } = useSnakeGame(BOARD_SIZE);  
 
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
@@ -59,7 +61,7 @@ const GameBoard = () => {
     ctx.fillStyle = '#1A1F2C';
     ctx.fillRect(0, 0, canvas.width, canvas.height);
 
-    // Draw food
+    // Food
     ctx.fillStyle = '#F97316';
     ctx.beginPath();
     ctx.arc(
@@ -71,10 +73,9 @@ const GameBoard = () => {
     );
     ctx.fill();
 
-    // Draw snake
+    // Snake
     ctx.fillStyle = '#8B5CF6';
     snake.forEach((segment, i) => {
-      // Head is slightly darker
       if (i === 0) {
         ctx.fillStyle = '#7C3AED';
       } else {
@@ -92,10 +93,11 @@ const GameBoard = () => {
   }, [snake, food]);
 
   return (
-    <div className="flex flex-col items-center justify-center gap-4 bg-slate-800 h-screen"> 
+    <div className="flex flex-col items-center justify-center gap-8 bg-slate-800 h-screen"> 
+      <h1 className="text-2xl text-white font-bold">Snake Game</h1>
       <div className="flex flex-col items-center bg-[#22242B] px-4 py-8 gap-4">
         <div className="flex justify-between items-center w-full max-w-[300px] mb-2">
-          <div className="font-semibold text-white">Score: {score}</div>
+          <div className="font-semibold text-white hover:cursor-default">Score: {score}</div>
           <button 
             onClick={togglePause}
             className="px-4 py-1 bg-[#9c60fc] rounded hover:cursor-pointer hover:bg-[#aa78fa] duration-300 ease-in-out"
@@ -111,18 +113,32 @@ const GameBoard = () => {
             height={BOARD_SIZE * CELL_SIZE}
             className="bg-snake-bg"
           />
-          
-          {gameOver && (
+
+          {!isStarted && (
+            <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-70">
+              <button
+                onClick={() => {
+                  setIsStarted(true);
+                  resetGame();
+                }}
+                className="px-6 py-3 bg-[#9c60fc] text-white rounded text-lg hover:bg-[#aa78fa] duration-300 hover:cursor-pointer"
+              >
+                Start Game
+              </button>
+            </div>
+          )}
+
+          {gameOver && isStarted && (
             <GameOverModal score={score} onRestart={resetGame} />
           )}
-          
-          {isPaused && !gameOver && (
+
+          {isPaused && !gameOver && isStarted && (
             <div className="absolute inset-0 flex items-center justify-center bg-black bg-opacity-50 animate-fade-in">
               <div className="bg-white flex flex-col justify-center p-4 rounded shadow-lg">
                 <h2 className="text-xl font-bold mb-2">Game Paused</h2>
                 <button 
                   onClick={togglePause}
-                  className="px-4 py-2 bg-[#9c60fc] text-white rounded hover:cursor-pointer hover:bg-[#aa78fa] duration-300 ease-in-out"
+                  className="px-4 py-2 bg-[#9c60fc] text-white rounded hover:bg-[#aa78fa] duration-300"
                 >
                   Resume
                 </button>
@@ -130,6 +146,7 @@ const GameBoard = () => {
             </div>
           )}
         </div>
+
         
         <GameControls onDirectionChange={changeDirection} />
       </div>

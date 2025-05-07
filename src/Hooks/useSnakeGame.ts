@@ -10,9 +10,10 @@ export const useSnakeGame = (boardSize: number) => {
   const [gameOver, setGameOver] = useState(false);
   const [score, setScore] = useState(0);
   const [isPaused, setIsPaused] = useState(false);
-  const [speed, setSpeed] = useState(150); // milliseconds
+  const [speed, setSpeed] = useState(150);
+  const [isStarted, setIsStarted] = useState(false);
 
-  // ✅ Generates a valid food position not on the snake
+  // Generates a valid food position not on the snake
   const generateFood = useCallback((): Position => {
     let newFood: Position;
     let occupied = new Set(snake.map(seg => `${seg.x},${seg.y}`));
@@ -27,7 +28,7 @@ export const useSnakeGame = (boardSize: number) => {
     return newFood;
   }, [boardSize]);
 
-  // ✅ Change direction with 180-turn prevention
+  // Change direction with 180-turn prevention
   const changeDirection = useCallback((newDirection: Direction) => {
     if (
       (direction === 'UP' && newDirection === 'DOWN') ||
@@ -40,7 +41,7 @@ export const useSnakeGame = (boardSize: number) => {
     setDirection(newDirection);
   }, [direction]);
 
-  // ✅ Keyboard event listener
+  // Keyboard event listener
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
       switch (e.key) {
@@ -71,7 +72,7 @@ export const useSnakeGame = (boardSize: number) => {
     return () => window.removeEventListener('keydown', handleKeyDown);
   }, [changeDirection]);
 
-  // ✅ Reset game state
+  // Reset game state
   const resetGame = useCallback(() => {
     const initialSnake = [{ x: 5, y: 5 }];
     setSnake(initialSnake);
@@ -89,7 +90,7 @@ export const useSnakeGame = (boardSize: number) => {
     }
   }, [gameOver]);
 
-  // ✅ Main game loop
+  // Main game loop
   useEffect(() => {
     if (gameOver || isPaused) return;
 
@@ -148,13 +149,15 @@ export const useSnakeGame = (boardSize: number) => {
     gameOver,
     isPaused,
     speed,
+    isStarted,
+    setIsStarted,
     changeDirection,
     resetGame,
     togglePause,
-  };
+  };  
 };
 
-// ✅ Static food generator for first load or reset
+// Static food generator for first load or reset
 function generateInitialFood(snake: Position[], boardSize: number): Position {
   let newFood: Position;
   let occupied = new Set(snake.map(seg => `${seg.x},${seg.y}`));
